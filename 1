@@ -1,0 +1,55 @@
+<?php
+
+class Contact {
+    public string $name;
+    public string $phone;
+    public string $email;
+
+    public function __construct(string $name, string $phone, string $email) {
+        $this->name = $name;
+        $this->phone = $phone;
+        $this->email = $email;
+    }
+}
+
+class SignatureGenerator {
+    private Contact $contact;
+
+    public function __construct(Contact $contact) {
+        $this->contact = $contact;
+    }
+
+    public function generateSignature(string $color): string {
+        $phone = $this->formatPhone($this->contact->phone);
+        $email = $this->contact->email;
+
+        return <<<HTML
+            <div style="border-top: 1px solid #000; margin-top: 20px; padding-top: 10px;">
+                <span style="color: $color; font-weight: bold;">—-</span><br>
+                С уважением,<br>
+                {$this->contact->name}<br>
+                Тел: <a href="tel:$phone">$phone</a><br>
+                E-Mail: <a href="mailto:$email">$email</a>
+            </div>
+        HTML;
+    }
+
+    private function formatPhone(string $phone): string {
+        
+        return preg_replace('/(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})/', '+$1 ($2) $3-$4-$5', $phone);
+    }
+}
+
+enum Color {
+    case RED = 'red';
+    case GREEN = 'green';
+}
+
+$contact = new Contact('Фамилия И.О.', '375295038183', 'demo@bx-shef.by, demo2@bx-shef.by');
+$generator = new SignatureGenerator($contact);
+
+$redSignature = $generator->generateSignature(Color::RED);
+$greenSignature = $generator->generateSignature(Color::GREEN);
+
+echo $redSignature;
+echo $greenSignature;
